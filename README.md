@@ -44,14 +44,14 @@ Column 2 = input stimuli
 Column 3 = output states
 Column 4 = latches after step
 
-Example output from aigTestSMV2.aag.txt:
-00 11 0 10
-10 11 1 10
-10 10 1 00
-00 10 0 00
-00 11 0 10
-10 00 1 00
-00 10 0 00
+Example output from aigTestSMV2.aag.txt:<br />
+00 11 0 10 <br />
+10 11 1 10 <br />
+10 10 1 00 <br />
+00 10 0 00 <br />
+00 11 0 10 <br />
+10 00 1 00 <br />
+00 10 0 00 <br />
 
 Verbose option 2 prints model state after the end of each step of execution with the addition of the and gate states:
 Column 1 = model step
@@ -61,13 +61,13 @@ Column 4 = output states
 Column 5 = latches after step
 Column 6 = and gate states
 
-Example output from aigTestSMV2.aag.txt:
-   0 00 11 10 0 100
-   1 10 11 10 1 101
-   2 10 10 00 1 001
-   3 00 10 00 0 000
-   4 00 11 10 0 100
-   5 10 00 00 1 001
+Example output from aigTestSMV2.aag.txt:<br />
+   0 00 11 10 0 100 <br />
+   1 10 11 10 1 101 <br />
+   2 10 10 00 1 001 <br />
+   3 00 10 00 0 000 <br />
+   4 00 11 10 0 100 <br />
+   5 10 00 00 1 001 <br />
 
 # Model Files
 The following model files are provided in the examples directory:
