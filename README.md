@@ -24,6 +24,8 @@ A standard invocation:<br />
 `python aigsim.py -m modelFile.aag -s stimFile.txt`
 
 Verbose option -v0 prints model statistics:<br />
+
+Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v0`
 ```
 maxvar      =  7
 num_inputs  =  2
@@ -46,7 +48,7 @@ Verbose option -v1 with no print options prints model state at the end of each s
 - Column 3 = output states<br />
 - Column 4 = latches after step<br />
 
-Example output from aigTestSMV2.aag.txt:<br />
+Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v0 -v1`
 ```
 00 11 0 10 
 10 11 1 10 
@@ -63,7 +65,7 @@ Adding print option -p0 prints model state after the end of each step of executi
 - Column 4 = output states<br />
 - Column 5 = latches after step<br />
 
-Example output from aigTestSMV2.aag.txt:<br />
+Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v0 -p0`
 ```
    1 00 11 0 10 
    2 10 11 1 10 
@@ -80,6 +82,7 @@ Adding print option -p1 prints model state after the end of each step of executi
 - Column 5 = latches after step<br />
 - Column 6 = and gate states<br />
 
+Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v0 -p0 -p1`
 ```
    1 00 11 0 10 100 
    2 10 11 1 10 101 
@@ -101,6 +104,7 @@ Adding print option -p1 prints model state after the end of each step of executi
 
 **Note:** It is not recommended to use this option with models containing large numbers of and gates.
 
+Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v0 -p0 -p1 -p2`
 ```
    1 00 11 0 10 100 0101 101001100110
    2 10 11 1 10 101 1101 101001101110
