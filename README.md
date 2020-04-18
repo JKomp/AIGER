@@ -92,7 +92,13 @@ Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v0 -
    6 10 00 1 00 001 
    ```
  
- Adding print option `-p2` prints model coverage. Each latch has two bits where the lower bit is having seen a `0` input and the upper bit denotes having seen a `1` input. Each and gate has four bits, two for each input. The upper two bits are the `i0` input and the lower two bits are the `i1` input. Like the latches, the upper bit of the pair denotes having seen a `1` and the lower a `0`:<br />
+ Adding print option `-p2` prints model coverage. Each latch has two bits where the lower bit is having seen a `0` input and the upper bit denotes having seen a `1` input. Each and gate has four bits where the bit represent:<br />
+ - `b0` = input pattern `00`
+ - `b1` = input pattern `01`
+ - `b2` = input pattern `10`
+ - `b3` = input pattern `11`
+
+The output columns are defined as:
 - Column 1 = model step<br />
 - Column 2 = latches before step<br />
 - Column 3 = input stimuli<br />
@@ -106,12 +112,12 @@ Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v0 -
 
 Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v0 -p0 -p1 -p2`
 ```
-   1 00 11 0 10 100 0101 101001100110
-   2 10 11 1 10 101 1101 101001101110
-   3 10 10 1 00 001 1101 111011111110
-   4 00 10 0 00 000 1101 111011111110
-   5 00 11 0 10 100 1101 111011111110
-   6 10 00 1 00 001 1101 111111111110
+   1 00 11 0 10 100 0101 100000100010
+   2 10 11 1 10 101 1101 100000101010
+   3 10 10 1 00 001 1101 101001101010
+   4 00 10 0 00 000 1101 101001101010
+   5 00 11 0 10 100 1101 101001101010
+   6 10 00 1 00 001 1101 101101101010
    ```
 
 Print options may be used in any combination. -v1 is required to enable any print option.
