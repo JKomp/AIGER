@@ -23,7 +23,7 @@ A standard invocation:<br />
 
 `python aigsim.py -m modelFile.aag -s stimFile.txt`
 
-Verbose option -v0 prints model statistics:<br />
+Verbose option `-v0` prints model statistics:<br />
 
 Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v0`
 ```
@@ -42,7 +42,7 @@ aiger_symbol - Type: And    lit:   8 rhs0:   4  rhs1:   7 input: I1  A0*   name:
 aiger_symbol - Type: And    lit:  14 rhs0:  11  rhs1:  12 input: L1* L0    name:A2        
   
 ```
-Verbose option -v1 with no print options prints model state at the end of each step of execution where<br />
+Verbose option `-v1` with no print options prints model state at the end of each step of execution where<br />
 - Column 1 = latches before step<br />
 - Column 2 = input stimuli<br />
 - Column 3 = output states<br />
@@ -58,7 +58,7 @@ Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v0 -
 10 00 1 00  
 ```
 
-Adding print option -p0 prints model state after the end of each step of execution with the addition of the and gate states:<br />
+Adding print option `-p0` prints model state after the end of each step of execution with the addition of the and gate states:<br />
 - Column 1 = model step<br />
 - Column 2 = latches before step<br />
 - Column 3 = input stimuli<br />
@@ -74,7 +74,7 @@ Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v0 -
    5 00 11 0 10 
    6 10 00 1 00 
 ```
-Adding print option -p1 prints model state after the end of each step of execution with the addition of the and gate states:<br />
+Adding print option `-p1` prints model state after the end of each step of execution with the addition of the and gate states:<br />
 - Column 1 = model step<br />
 - Column 2 = latches before step<br />
 - Column 3 = input stimuli<br />
@@ -92,7 +92,7 @@ Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v0 -
    6 10 00 1 00 001 
    ```
  
- Adding print option -p2 prints model coverage. Each latch has two bits where the lower bit is having seen a '0' input and the upper bit denotes having seen a '1' input. Each and gate has four bits, two for each input. The upper two bits are the i0 input and the lower two bits are the i1 input. Like the latches, the upper bit of the pair denotes having seen a '1' and the lower a '0':<br />
+ Adding print option `-p2` prints model coverage. Each latch has two bits where the lower bit is having seen a `0` input and the upper bit denotes having seen a `1` input. Each and gate has four bits, two for each input. The upper two bits are the `i0` input and the lower two bits are the `i1` input. Like the latches, the upper bit of the pair denotes having seen a `1` and the lower a `0`:<br />
 - Column 1 = model step<br />
 - Column 2 = latches before step<br />
 - Column 3 = input stimuli<br />
