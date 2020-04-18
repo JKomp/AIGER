@@ -25,20 +25,20 @@ A standard invocation:<br />
 
 Verbose option -v0 prints model statistics:<br />
 ```
-Model
 maxvar      =  7
 num_inputs  =  2
 num_latches =  2
 num_outputs =  1
 num_ands    =  3
-aiger_symbol - Type: Input  lit:  2                    input: I0      name:I0        
-aiger_symbol - Type: Input  lit:  4                    input: I1      name:I1        
-aiger_symbol - Type: Latch  lit: 12 next:  6 reset:  0 input: A0      name:L0        
-aiger_symbol - Type: Latch  lit: 10 next:  8 reset:  0 input: A1      name:L1        
-aiger_symbol - Type: Output lit: 14                    input: A2      name:O0        
-aiger_symbol - Type: And    lit:  6 rhs0:  2  rhs1:  4 input: I0  I1  name:A0        
-aiger_symbol - Type: And    lit:  8 rhs0:  4  rhs1:  7 input: I1  A0* name:A1        
-aiger_symbol - Type: And    lit: 14 rhs0: 11  rhs1: 12 input: L1* L0  name:A2        
+aiger_symbol - Type: Input  lit:   2                      input: I0        name:I0   uncontrollable      
+aiger_symbol - Type: Input  lit:   4                      input: I1        name:I1   controllable_c0     
+aiger_symbol - Type: Latch  lit:  12 next:   6 reset:   0 input: A0        name:L0   latch0              
+aiger_symbol - Type: Latch  lit:  10 next:   8 reset:   0 input: A1        name:L1   latch1              
+aiger_symbol - Type: Output lit:  14                      input: A2        name:O0                       
+aiger_symbol - Type: And    lit:   6 rhs0:   2  rhs1:   4 input: I0  I1    name:A0        
+aiger_symbol - Type: And    lit:   8 rhs0:   4  rhs1:   7 input: I1  A0*   name:A1        
+aiger_symbol - Type: And    lit:  14 rhs0:  11  rhs1:  12 input: L1* L0    name:A2        
+  
 ```
 Verbose option -v1 with no print options prints model state at the end of each step of execution where<br />
 - Column 1 = latches before step<br />
