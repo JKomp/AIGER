@@ -26,10 +26,31 @@ class Reader:
     
     def _init_(self):
         pass
+
+#--------------------------------------------------------------------------------------
     
     def openFile(self,file):
         
         self.inFile = open(file)
+
+#--------------------------------------------------------------------------------------
+
+    def procModelNames(self,model):
+    
+        for line in self.inFile:
+            gateNames = line.split()
+            if gateNames[0][0] != 'c':
+                if gateNames[0][0] == 'i':
+                    model.inputs[int(gateNames[0][1:])].modName = gateNames[1]
+                    
+                elif gateNames[0][0] == 'l':
+                    model.latches[int(gateNames[0][1:])].modName = gateNames[1]
+                
+            else:
+                break
+
+        
+#--------------------------------------------------------------------------------------
         
     def readHeader(self,model):
         
@@ -60,6 +81,8 @@ class Reader:
             model.num_fairness = int(args[9])
 
         return 0
+
+#--------------------------------------------------------------------------------------
     
     def validateInput(self,numArgs,errStr,verbose):
         
@@ -129,6 +152,7 @@ class Reader:
                 model.ands[i] = ag.aiger_and(int(args[0]),int(args[1]),int(args[2]),i)
                 gateList[int(int(args[0])/2)] = model.ands[i]
 
+        # Connect all the gate inputs up
         for i in range(0,model.num_inputs):
             model.inputs[i].connect(gateList)
   
@@ -140,7 +164,9 @@ class Reader:
 
         for i in range(0,model.num_ands):
             model.ands[i].connect(gateList)
-
+            
+        self.procModelNames(model)
+        
 #--------------------------------------------------------------------------------------
               
     def getStim(self):
@@ -213,7 +239,7 @@ class Model:
         
         return val
     
-    def step(self,args,verbose):
+    def step(self,args):
         
         for i in range(0,self.num_inputs):
             self.inputs[i].prepStep()
@@ -242,28 +268,9 @@ class Model:
         for i in range(0,self.num_outputs):
             self.outputs[i].step()
 
-        if verbose == True:
-            self.printState(self.stepNum)
         self.stepNum += 1
-    
-    def printResults(self):
         
-        for i in range(0,self.num_latches):
-            print('{:1}'.format(self.latches[i].curVal),end='')
-        print(' ',end='')
-
-        for i in range(0,self.num_inputs):
-            print('{:1}'.format(self.inputs[i].curVal),end='')
-        print(' ',end='')
-            
-        for i in range(0,self.num_outputs):
-            print('{:1}'.format(self.outputs[i].curVal),end='')
-        print(' ',end='')
-        
-        for i in range(0,self.num_latches):
-            print('{:1}'.format(self.latches[i].nextVal),end='')
-
-        print('')
+        return self.stepNum
         
     def printSelf(self):
         print('Model')
@@ -286,27 +293,39 @@ class Model:
         for i in range(0,self.num_ands):
             self.ands[i].printSelf()
         
-    def printState(self,stepNum=0):
+    def printState(self,pOptions,stepNum=0):
     
-        print("{:4d} ".format(stepNum),end='')
+        if pOptions[0] == True:
+            print("{:4d} ".format(stepNum),end='')
+            
         for i in range(0,self.num_latches):
             print("{:1d}".format(self.latches[i].curVal),end='')
         print(' ',end='')
-            
+
         for i in range(0,self.num_inputs):
             print("{:1d}".format(self.inputs[i].curVal),end='')
-        print(' ',end='')
-            
-        for i in range(0,self.num_latches):
-            print("{:1d}".format(self.latches[i].nextVal),end='')
         print(' ',end='')
             
         for i in range(0,self.num_outputs):
             print("{:1d}".format(self.outputs[i].curVal),end='')
         print(' ',end='')
+
+        for i in range(0,self.num_latches):
+            print("{:1d}".format(self.latches[i].nextVal),end='')
+        print(' ',end='')
             
-        for i in range(0,self.num_ands):
-            print("{:1d}".format(self.ands[i].curVal),end='')
+        if pOptions[1] == True:
+            for i in range(0,self.num_ands):
+                print("{:1d}".format(self.ands[i].curVal),end='')            
+            print(' ',end='')
+            
+        if pOptions[2] == True:
+            for i in range(0,self.num_latches):
+                print("{:02b}".format(self.latches[i].statesSeen),end='')
+            
+            print(' ',end='')
+            for i in range(0,self.num_ands):
+                print("{:04b}".format(self.ands[i].statesSeen,''),end='')
             
         print('')
        
@@ -314,14 +333,16 @@ def main():
 
     verbose0 = False
     verbose1 = False
-    verbose2 = False
+    pOptions = [False] * 3
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', type=str, default='', help='Model Filename')
     parser.add_argument('-s', type=str, default='', help='Stim Filename')
     parser.add_argument('-v0', action='store_true', help='Model Statistics')
     parser.add_argument('-v1', action='store_true', help='Model Output')
-    parser.add_argument('-v2', action='store_true', help='Model Output with and gates')
+    parser.add_argument('-p0', action='store_true', help='Print Option: Include simulation step')
+    parser.add_argument('-p1', action='store_true', help='Print Option: Include and gate states')
+    parser.add_argument('-p2', action='store_true', help='Print Option: Include coverage')
     
     args = parser.parse_args()
     
@@ -341,9 +362,15 @@ def main():
     if args.v1 == True:
         verbose1 = True
         
-    if args.v2 == True:
-        verbose2 = True
-	
+    if args.p0 == True:
+        pOptions[0] = True
+         
+    if args.p1 == True:
+        pOptions[1] = True
+        
+    if args.p2 == True:
+        pOptions[2] = True
+   
     model = Model()
 
     reader = Reader()
@@ -367,9 +394,9 @@ def main():
             if stim[0] == '.':
                 done = True
             else:
-                model.step(stim[0],verbose2)
+                stepNum = model.step(stim[0])
                 if verbose1 == True:
-                    model.printResults()
+                    model.printState(pOptions,stepNum)
             
         else:
             print('Stim file not properly terminated. Last line should only contain a period')

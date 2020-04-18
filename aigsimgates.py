@@ -3,14 +3,15 @@ import math
 
 class aiger_symbol:
 
-    lit     = 0  # Number assigned to this gate as literal [0..2*maxvar+1]
-    gID     = 0  # Gate ID number. Assumed use is to sequentially number gates of a same class
-    type    = '' # What type of object is this    - aigsim new parameter
-    oldVal  = 0  # The previous gate value        - aigsim new parameter
-    curVal  = 0  # The current gate value
-    gName   = ''
-    myInput = '' # The gate that feeds this one
+    lit        = 0  # Number assigned to this gate by the model file, format: [0..2*maxvar+1]
+    gID        = 0  # Gate ID number. Assumed use is to sequentially number gates of a same class
+    type       = '' # What type of object is this 
+    gName      = '' # Internally generated short name of gate
+    modName    = '' # Name give to the gate by the model file
+    myInput    = '' # The gate that feeds this one (builds a binary tree of the model gates)
     myInputNeg = False # Is the feeder gate negated
+    curVal     = 0  # The current gate value
+    statesSeen = 0  # Keeps a running list of which input states the gate has seen
 	
     def __init__(self,lit,typeName,gID=0,gName=''):
         self.lit = lit
@@ -37,7 +38,7 @@ class aiger_symbol:
         else:
            conStr += ' '
            
-        print('aiger_symbol - Type: {:6} lit: {:2}                    input: {:3}     name:{:10}'.format(self.type,self.lit,conStr,self.gName))                                
+        print('aiger_symbol - Type: {:6} lit: {:3}                      input: {:4}      name:{:4} {:20}'.format(self.type,self.lit,conStr,self.gName,self.modName))                                
 
 #--------------------------------------------------------------------------------------
 
@@ -90,6 +91,8 @@ class aiger_latch(aiger_symbol):
             self.nextVal = self.myInput.step()
             if self.myInputNeg == True:
                 self.nextVal = int(bin(self.nextVal+1)[-1])
+                
+            self.statesSeen = self.statesSeen | 0x1 << self.curVal
             
         return self.curVal
         
@@ -100,7 +103,7 @@ class aiger_latch(aiger_symbol):
         else:
            conStr += ' '
            
-        print('aiger_symbol - Type: {:6} lit: {:2} next: {:2} reset: {:2} input: {:3}     name:{:10}'.format(self.type,self.lit,self.next,self.reset,conStr,self.gName))                                
+        print('aiger_symbol - Type: {:6} lit: {:3} next: {:3} reset: {:3} input: {:4}      name:{:4} {:20}'.format(self.type,self.lit,self.next,self.reset,conStr,self.gName,self.modName))                                
 
 #--------------------------------------------------------------------------------------
 
@@ -136,7 +139,16 @@ class aiger_and(aiger_symbol):
             if self.in1Neg == True:
                 rhs1 = int(bin(rhs1+1)[-1])
             self.curVal = rhs0 & rhs1
-           
+
+            if rhs1 == 0 and rhs0 == 0:
+                self.statesSeen = self.statesSeen | 0x1
+            elif rhs1 == 0 and rhs0 == 1:
+                self.statesSeen = self.statesSeen | 0x2
+            elif rhs1 == 1 and rhs0 == 0:
+                self.statesSeen = self.statesSeen | 0x4
+            elif rhs1 == 1 and rhs0 == 1:
+                self.statesSeen = self.statesSeen | 0x8
+          
         return self.curVal
 
     def printSelf(self):        
@@ -150,4 +162,4 @@ class aiger_and(aiger_symbol):
         if self.in1Neg == True:
            conStr += '*'
 
-        print('aiger_symbol - Type: {:6} lit: {:2} rhs0: {:2}  rhs1: {:2} input: {:7} name:{:10}'.format(self.type,self.lit,self.rhs0,self.rhs1,conStr,self.gName))
+        print('aiger_symbol - Type: {:6} lit: {:3} rhs0: {:3}  rhs1: {:3} input: {:9} name:{:10}'.format(self.type,self.lit,self.rhs0,self.rhs1,conStr,self.gName))
