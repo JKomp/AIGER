@@ -5,6 +5,8 @@ Python version of tools to work with AIG formatted files<br />
 There are two versions of the code here. One is a standard py file. The other is a Jupyter notebook. The model and stim files for the jupyter notebook are hardcoded in the first cell.<br />
 
 For the py file:<br />
+
+## From Command Line
 ```
 python aigsim.py -h
 usage: aigsim.py [-h] [-m M] [-s S] [-v0] [-v1] [-p0] [-p1] [-p2]
@@ -122,7 +124,7 @@ Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v0 -
 
 Print options may be used in any combination. -v1 is required to enable any print option.
 
-# Model Files
+### Model Files
 The following model files are provided in the examples directory:<br />
 
 | Model | Stim File | Description |
@@ -133,3 +135,42 @@ The following model files are provided in the examples directory:<br />
 
 **Note:** `random_n_19_1_2_16_14_2_abc.aag` is an extremely large model with over 1M gates. Caution recommended on verbose print options used.
 
+## As a module
+
+aigsim.py may also be used as a module. Usage requires the following steps:
+
+- Create a Model object
+- Create a Reader to read the model file
+- Open and read the model
+- Initialize the model
+- Feed stimulus to the model
+
+Example:
+```
+    model = Model()
+
+    reader = Reader()
+    reader.openFile(modelFile)
+    reader.readHeader(model)
+    reader.readModel(model)
+
+    if verbose0 == True:
+        model.printSelf()
+        
+    model.initModel()
+
+    reader = Reader()
+    reader.openFile(stimFile)
+
+    done = False
+    
+    while done != True:
+        stim = reader.getStim()
+        if len(stim) > 0:
+            if stim[0] == '.':
+                done = True
+            else:
+                stepNum = model.step(stim[0])
+                if verbose1 == True:
+                    model.printState(pOptions,stepNum)
+```
