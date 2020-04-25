@@ -15,9 +15,10 @@ optional arguments:
   
  Currently available games and game codes:
  ```
-    Sg - SampleGame
-    Sf - SafetyGame1
-    T  - Temperature
+    Sg  - SampleGame
+    Sg2 - SampleGame2
+    Sf  - SafetyGame1
+    T   - Temperature
  ```
  
  A typical invocation:
