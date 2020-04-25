@@ -1,14 +1,14 @@
 import random as rd
 import AbsStochasticConcurrentGame as ac
         
-class SafetyGame1(ac.AbsStochasticConcurrentGame):
+class SampleGame2(ac.AbsStochasticConcurrentGame):
 
     def __init__(self):
         super().__init__()
         self.n_observations = 3
         self.n_max_actions  = 2
         self.n_min_actions  = 2
-        print("SampleGame")
+        print("SampleGame2")
         
     def reset(self):
         self.state = 0
