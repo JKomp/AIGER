@@ -3,6 +3,7 @@ import argparse
 import numpy as np
 import random as rd
 import SampleGame as sg
+import SampleGame2 as sg2
 import SafetyGame1 as sf1
 import TemperatureGame as tg
 
@@ -122,6 +123,8 @@ def main():
         g = sf1.SafetyGame1()
     elif args.g == 'Sg':
         g = sg.SampleGame()
+    elif args.g == 'Sg2':
+        g = sg2.SampleGame2()
             
     print('Max Episodes = {:d}\nMax Steps = {:d}'.format(args.e,args.s))
     
