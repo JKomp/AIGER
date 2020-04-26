@@ -56,7 +56,9 @@ Quick Play
   ```
 # The Concurrent Games
 
-![foo](./images/SafetyGame1Con.png)
+<img src="./images/SampleGame1Con.png" width="250" height="250" title="SampleGame1">
+<img src="./images/SampleGame2Con.png" width="250" height="250" title="SampleGame2">
+<img src="./images/SafetyGame1Con.png" width="250" height="250" title="SafetyGame1">
 
 # Playing AIGER Formatted Games
 AIGER formatted circuits can be treated as concurrent games by combining `concurrent.py` with `aigsim.py`. To set the Sf2 game up, copy the simulator `aigsim.py` and model 'aigTestSMV2.aag.txt` into the same directory as `concurrent.py`. 
