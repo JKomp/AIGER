@@ -56,9 +56,9 @@ Quick Play
   ```
 # The Concurrent Games
 
-<img src="./images/SampleGame1Con.png" width="250" height="250" title="SampleGame1"><br>
+<img src="./images/SampleGame1Con.png" width="275" height="250" title="SampleGame1"><br>
 **Sample Game1**<br><br>
-<img src="./images/SampleGame2Con.png" width="250" height="250" title="SampleGame2"><br>
+<img src="./images/SampleGame2Con.png" width="350" height="250" title="SampleGame2"><br>
 **Sample Game2**<br>
 This is the turn based SampleGame1 converted to a concurrent game<br><br>
 <img src="./images/SafetyGame1Con.png" width="250" height="250" title="SafetyGame1"><br>
