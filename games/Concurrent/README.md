@@ -61,8 +61,11 @@ Quick Play
 <img src="./images/SampleGame2Con.png" width="350" height="250" title="SampleGame2"><br>
 **Sample Game2**<br>
 This is the turn based SampleGame1 converted to a concurrent game<br><br>
-<img src="./images/SafetyGame1Con.png" width="250" height="250" title="SafetyGame1"><br>
-**SafetyGame1**<br><br>
+<img src="./images/SafetyGame1Con.png" width="275" height="250" title="SafetyGame1"><br>
+**SafetyGame1**<br>
+<img src="./images/SafetyGameAIGERModel.png" width="650" height="250" title="SafetyGame1"><br>
+**SafetyGame1 AIGER Model**<br><br>
+<br>
 
 # Playing AIGER Formatted Games
 AIGER formatted circuits can be treated as concurrent games by combining `concurrent.py` with `aigsim.py`. To set the Sf2 game up, copy the simulator `aigsim.py` and model 'aigTestSMV2.aag.txt` into the same directory as `concurrent.py`. 
