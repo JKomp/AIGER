@@ -54,5 +54,9 @@ Quick Play
   8: State:  2 Play: 10 Reward:  0 New State:  2
   9: State:  2 Play: 10 Reward:  0 New State:  2
   ```
+# The Concurrent Games
+
+![foo](./images/SafetyGame1Con.png)
+
 # Playing AIGER Formatted Games
 AIGER formatted circuits can be treated as concurrent games by combining `concurrent.py` with `aigsim.py`. To set the Sf2 game up, copy the simulator `aigsim.py` and model 'aigTestSMV2.aag.txt` into the same directory as `concurrent.py`. 
