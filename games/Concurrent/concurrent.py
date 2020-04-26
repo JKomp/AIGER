@@ -5,6 +5,7 @@ import random as rd
 import SampleGame as sg
 import SampleGame2 as sg2
 import SafetyGame1 as sf1
+import SafetyGame2 as sf2
 import TemperatureGame as tg
 
 # Parameters
@@ -119,8 +120,10 @@ def main():
     
     if args.g == 'T' :
         g = tg.TemperatureGame()
-    elif args.g == 'Sf':
+    elif args.g == 'Sf1':
         g = sf1.SafetyGame1()
+    elif args.g == 'Sf2':
+        g = sf2.SafetyGame2()
     elif args.g == 'Sg':
         g = sg.SampleGame()
     elif args.g == 'Sg2':

@@ -328,6 +328,39 @@ class Model:
                 print("{:04b}".format(self.ands[i].statesSeen,''),end='')
             
         print('')
+
+    def stateStr(self):
+    
+        statusStr = ''
+        
+        for i in range(0,self.num_latches):
+            statusStr += ("{:1d}".format(self.latches[i].curVal))
+        statusStr += ' '
+
+        for i in range(0,self.num_inputs):
+            statusStr += ("{:1d}".format(self.inputs[i].curVal))
+        statusStr += ' '
+            
+        for i in range(0,self.num_outputs):
+            statusStr += ("{:1d}".format(self.outputs[i].curVal))
+        statusStr += ' '
+
+        for i in range(0,self.num_latches):
+            statusStr += ("{:1d}".format(self.latches[i].nextVal))
+        statusStr += ' '
+            
+        for i in range(0,self.num_ands):
+            statusStr += ("{:1d}".format(self.ands[i].curVal))            
+        statusStr += ' '
+            
+        for i in range(0,self.num_latches):
+            statusStr += ("{:02b}".format(self.latches[i].statesSeen))
+            
+        statusStr += ' '
+        for i in range(0,self.num_ands):
+            statusStr += ("{:04b}".format(self.ands[i].statesSeen,''))
+       
+        return statusStr
        
 def main():
 
