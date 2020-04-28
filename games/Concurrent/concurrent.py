@@ -6,6 +6,7 @@ import SampleGame as sg
 import SampleGame2 as sg2
 import SafetyGame1 as sf1
 import SafetyGame2 as sf2
+import SafetyGameAIG as sfm
 import TemperatureGame as tg
 
 # Parameters
@@ -46,10 +47,10 @@ def randQ(game):
     return q
 
 
-def minimax_q(game, maxepisodes = 10000, maxsteps = 100 ):
+def minimax_q(game, seed, maxepisodes = 10000, maxsteps = 100):
     
-    rd.seed()
-    
+    np.random.seed(seed)
+   
     if maxepisodes < 1 or not isinstance(maxepisodes, int):
         print('The maximum number of episodes must be a positive integer')
         return -1
@@ -112,9 +113,10 @@ def minimax_q(game, maxepisodes = 10000, maxsteps = 100 ):
 def main():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-g', type=str, default='T', help='Game type')
+    parser.add_argument('-g', type=str, default='T', help='Game type or Model Filename')
     parser.add_argument('-e', type=int, default=10000, help='Max Episodes')
     parser.add_argument('-s', type=int, default=100, help='Max Steps')
+    parser.add_argument('-r', action='store_true', help='Force Fixed Random Sequence')
     
     args = parser.parse_args()
     
@@ -128,10 +130,17 @@ def main():
         g = sg.SampleGame()
     elif args.g == 'Sg2':
         g = sg2.SampleGame2()
-            
+    else:
+        g = sfm.SafetyGame3(args.g)
+    
+    if args.r == True:        
+    	seed = 0
+    else:
+        seed = None
+    
     print('Max Episodes = {:d}\nMax Steps = {:d}'.format(args.e,args.s))
     
-    Q = minimax_q(g, args.e, args.s)
+    Q = minimax_q(g, seed, args.e, args.s)
 
     print('\nOptimal Policy: ')
 
