@@ -26,12 +26,9 @@ Where SafetyGame1 and Safety Game2 are identical games. The difference is, for S
 
 The `-g` option will also accept an aag formated model file instead of the above listed game codes.
  
- A typical invocation:
+ Typical invocations:
  ```
  python -u concurrent.py -g Sf1
- ```
- or
- ```
  python -u concurrent.py -g aigGrant1.aag
  ```
  
