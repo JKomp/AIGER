@@ -4,13 +4,14 @@ Usages:
 
 ```
 python -u concurrent.py -h
-usage: concurrent.py [-h] [-g G] [-e E] [-s S]
+usage: concurrent.py [-h] [-g G] [-e E] [-s S] [-r]
 
 optional arguments:
   -h, --help  show this help message and exit
-  -g G        Game type
+  -g G        Game type or Model Filename
   -e E        Max Episodes
-  -s S        Max Steps  
+  -s S        Max Steps
+  -r          Force Fixed Random Sequence
  ```
   
 Currently available games and game codes:
@@ -22,11 +23,18 @@ Currently available games and game codes:
     T   - Temperature
  ```
 Where SafetyGame1 and Safety Game2 are identical games. The difference is, for SafetyGame1, the state machine is hardcoded in the python script whereas, for SafetyGame2, the state machine is coded in an AIGER model that is simulating the state machine as a black box. To run SafetyGame2, see below discussion on playing AIGER formatted games.
+
+The `-g` option will also accept an aag formated model file instead of the above listed game codes.
  
  A typical invocation:
  ```
- python -u turnBased.py -g Sf1
+ python -u concurrent.py -g Sf1
  ```
+ or
+ ```
+ python -u concurrent.py -g aigGrant1.aag
+ ```
+ 
 The `-u` option is recommended to override python output buffering
 
 The output will provide the best move for both players and then play 10 moves based on thost strategies. The play is displayed as a binary value where the upper bit is the max player's move while the lower bit is the min player's. A typical output would look like:
@@ -68,4 +76,8 @@ This is the turn based SampleGame1 converted to a concurrent game<br><br>
 <br>
 
 # Playing AIGER Formatted Games
-AIGER formatted circuits can be treated as concurrent games by combining `concurrent.py` with `aigsim.py`. To set the Sf2 game up, copy the simulator `aigsim.py` and model 'aigTestSMV2.aag.txt` into the same directory as `concurrent.py`. 
+AIGER formatted circuits can be treated as concurrent games by combining `concurrent.py` with `aigsim.py`. To set the Sf2 game up, copy the simulator `aigsim.py` and model `aigTestSMV2.aag.txt` into the same directory as `concurrent.py`. 
+
+**Note** <br>
+When supplying a model file during invocation, the controlled input must be the first input followed by all the uncontrolled inputs.
+
