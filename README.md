@@ -9,7 +9,7 @@ For the py file:<br />
 ## From Command Line
 ```
 python aigsim.py -h
-usage: aigsim.py [-h] [-m M] [-s S] [-v0] [-v1] [-p0] [-p1] [-p2]
+usage: aigsim.py [-h] [-m M] [-s S] [-v0] [-v1] [-p0] [-p1] [-p2] [-sm]
 
 optional arguments:
   -h, --help  show this help message and exit
@@ -20,7 +20,8 @@ optional arguments:
   -p0         Print Option: Include simulation step
   -p1         Print Option: Include and gate states
   -p2         Print Option: Include coverage
-```
+  -sm         Print Inferred State Machine Transition Table
+  ```
 A standard invocation:<br />
 
 `python aigsim.py -m modelFile.aag -s stimFile.txt`
@@ -94,7 +95,7 @@ Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v0 -
    6 10 00 1 00 001 
    ```
  
- Adding print option `-p2` prints model coverage. Each latch has two bits where the lower bit is having seen a `0` input and the upper bit denotes having seen a `1` input. Each and gate has four bits where the bit represent:<br />
+Adding print option `-p2` prints model coverage. Each latch has two bits where the lower bit is having seen a `0` input and the upper bit denotes having seen a `1` input. Each and gate has four bits where the bit represent:<br />
  - `b0` = input pattern `00`
  - `b1` = input pattern `01`
  - `b2` = input pattern `10`
@@ -124,6 +125,23 @@ Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v0 -
 
 Print options may be used in any combination. -v1 is required to enable any print option.
 
+The `-sm` option prints the state transition table inferred from the simulation run. It assumes the combination of latch values equates to the unique states of the circuit being simulated. It records the starting state, ending state, and the input value that caused the transition. If a state is never reached during the simulation it will be shown as a '.'. An example output:
+```
+python aigsim.py -m aigTestSMV2.aag.txt -s stim2.txt -sm
+
+Transistion Table
+------------------
+
+        Input
+      ------------
+State  11 10 01 00
+----- ------------
+  0     2  0  1  0
+  1     2  0  1  0
+  2     2  0  1  0
+  3     .  .  .  .
+  ```
+  
 ### Model Files
 The following model files are provided in the examples directory:<br />
 
