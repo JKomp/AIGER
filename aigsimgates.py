@@ -63,17 +63,19 @@ class aiger_output(aiger_symbol):
         return(self.curVal)
 
 #--------------------------------------------------------------------------------------
+# - Note this code does not support reset reset values outside {0,1}.
 
 class aiger_latch(aiger_symbol):
 
     next   = 0  # Number of gate connected to this gate's input as literal - latches only
-    reset  = 0
+    reset  = 0  # The initial state of the latch upon reset/startup
     nextVal = 0
 
     def __init__(self,lit,input,reset,gID=0,gName=''):
         super().__init__(lit,'Latch',gID,gName)
         self.next = input
         self.reset = reset
+        self.curVal = reset
         
     def connect(self,gateList):
         self.myInput = gateList[int(self.next/2)]
@@ -155,11 +157,14 @@ class aiger_and(aiger_symbol):
         conStr = self.in0.gName
         if self.in0Neg == True:
            conStr += '*'
-        else:
-           conStr += ' '
-           
-        conStr += ' ' + self.in1.gName
+        
+        conStr += ' '*(5-len(conStr))
+
+        conStr += self.in1.gName
         if self.in1Neg == True:
            conStr += '*'
+        
+        conStr += ' '*(9-len(conStr))
 
         print('aiger_symbol - Type: {:6} lit: {:3} rhs0: {:3}  rhs1: {:3} input: {:9} name:{:10}'.format(self.type,self.lit,self.rhs0,self.rhs1,conStr,self.gName))
+

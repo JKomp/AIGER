@@ -4,6 +4,7 @@ import argparse
 from dataclasses import dataclass
 
 import aigsimgates as ag
+import aigTransTable as tt
 
 # Implementation of a very stripped down version of the C program aigsim
 
@@ -46,6 +47,9 @@ class Reader:
                 elif gateNames[0][0] == 'l':
                     model.latches[int(gateNames[0][1:])].modName = gateNames[1]
                 
+                elif gateNames[0][0] == 'o':
+                    model.outputs[int(gateNames[0][1:])].modName = gateNames[1]
+
             else:
                 break
 
@@ -196,24 +200,14 @@ class Model:
     outputs = [] # [0..num_outputs]
 
     ands    = [] # [0..num_ands]
-    
-    current = [] # [0..maxvar+1] - holds current output of each gate
 
     def _init_(self):
         pass
     
     def initModel(self):
         self.stepNum = 0
-        self.current = [0] * (self.maxvar + 1) # for index simplicity, index 0 is unused
-        
-        # Initialize the latches    
-        # - Note this code does not support reset reset values outside {0,1}.
-        
-        for i in range(0,self.num_latches):
-            self.current[int((self.latches[i].lit)/2)] = self.latches[i].reset
-        
-    # Does not support ground or don't care values
-    
+        self.transTable = tt.aigTransionTable(self.num_latches,self.num_inputs)
+                    
     def validateInput(self,args):
         
         err = 0
@@ -227,8 +221,7 @@ class Model:
                     err = -1
                     
         else:
-            print('invalid input string length')
-            err = -1
+            sys.exit('invalid input string length')
 
         return current,err
         
@@ -257,9 +250,15 @@ class Model:
             self.inputs[i].curVal = stim[i]
 
         # Process the latches
+        curState  = ''
+        nextState = ''
         for i in range(0,self.num_latches):
             self.latches[i].step()
-
+            curState += ("{:1d}".format(self.latches[i].curVal))
+            nextState += ("{:1d}".format(self.latches[i].nextVal))
+        curState  = int(curState,2)
+        nextState = int(nextState,2)
+        
         # Process the and gates
         for i in range(0,self.num_ands):
             self.ands[i].step()
@@ -269,6 +268,8 @@ class Model:
             self.outputs[i].step()
 
         self.stepNum += 1
+        
+        self.transTable.updateTransTable(curState,nextState,int(args,2))
         
         return self.stepNum
         
@@ -362,10 +363,14 @@ class Model:
        
         return statusStr
        
+    def printTTable(self):
+        self.transTable.printTable()
+        
 def main():
 
     verbose0 = False
     verbose1 = False
+    printSM  = False
     pOptions = [False] * 3
 
     parser = argparse.ArgumentParser()
@@ -376,6 +381,7 @@ def main():
     parser.add_argument('-p0', action='store_true', help='Print Option: Include simulation step')
     parser.add_argument('-p1', action='store_true', help='Print Option: Include and gate states')
     parser.add_argument('-p2', action='store_true', help='Print Option: Include coverage')
+    parser.add_argument('-sm', action='store_true', help='Print Inferred State Machine Transition Table')
     
     args = parser.parse_args()
     
@@ -403,6 +409,9 @@ def main():
         
     if args.p2 == True:
         pOptions[2] = True
+        
+    if args.sm == True:
+        printSM = True
    
     model = Model()
 
@@ -435,5 +444,8 @@ def main():
             print('Stim file not properly terminated. Last line should only contain a period')
             done = True
 
+    if printSM == True:
+        model.printTTable()
+    
 if __name__== "__main__":
     main()
