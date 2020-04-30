@@ -127,7 +127,7 @@ Print options may be used in any combination. -v1 is required to enable any prin
 
 The `-sm` option prints the state transition table inferred from the simulation run. It assumes the combination of latch values equates to the unique states of the circuit being simulated. It records the starting state, ending state, and the input value that caused the transition. If a state is never reached during the simulation it will be shown as a '.'. An example output:
 ```
-python aigsim.py -m aigTestSMV2.aag.txt -s stim2.txt -sm
+python aigsim.py -m aigGrant3.aag -s stim2.txt -sm
 
 Transistion Table
 ------------------
@@ -136,11 +136,11 @@ Transistion Table
       ------------
 State  11 10 01 00
 ----- ------------
-  0     2  0  1  0
-  1     2  0  1  0
-  2     2  0  1  0
-  3     .  .  .  .
-  ```
+  0     0  1  0  0
+  1     0  3  0  2
+  2     0  3  0  2
+  3     0  .  0  2
+```
   
 ### Model Files
 The following model files are provided in the examples directory:<br />
