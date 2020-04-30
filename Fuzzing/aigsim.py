@@ -1,0 +1,465 @@
+import sys
+import argparse
+
+from dataclasses import dataclass
+
+import aigsimgates as ag
+import aigTransTable as tt
+
+# Implementation of a very stripped down version of the C program aigsim
+
+# Source Files
+# modelFile = 'aigTestSMV2.aag.txt'
+# stimFile  = 'stim1.txt'
+modelFile = 'aigTestLatch.aag.txt'
+stimFile  = 'stimELatchSmall.txt'
+
+STORE_PATH = '/Users/john/Jupyter/Machine Learning'
+
+validInput = {"0","1"}
+
+from dataclasses import dataclass
+
+@dataclass
+class Reader:
+
+    inFile = ''
+
+    def _init_(self):
+        pass
+
+#--------------------------------------------------------------------------------------
+
+    def openFile(self,file):
+
+        self.inFile = open(file)
+
+#--------------------------------------------------------------------------------------
+
+    def procModelNames(self,model):
+
+        for line in self.inFile:
+            gateNames = line.split()
+            if gateNames[0][0] != 'c':
+                if gateNames[0][0] == 'i':
+                    model.inputs[int(gateNames[0][1:])].modName = gateNames[1]
+
+                elif gateNames[0][0] == 'l':
+                    model.latches[int(gateNames[0][1:])].modName = gateNames[1]
+
+                elif gateNames[0][0] == 'o':
+                    model.outputs[int(gateNames[0][1:])].modName = gateNames[1]
+
+            else:
+                break
+
+
+#--------------------------------------------------------------------------------------
+
+    def readHeader(self,model):
+
+        args = (self.inFile.readline()).split()
+
+        if args[0] != 'aag':
+            return -1
+
+        if len(args) < 6:
+            sys.exit('Insufficient model parameters MILOA minimum requirement')
+
+        model.maxvar      = int(args[1])
+        model.num_inputs  = int(args[2])
+        model.num_latches = int(args[3])
+        model.num_outputs = int(args[4])
+        model.num_ands    = int(args[5])
+
+        if len(args) >= 7:
+            model.num_bad = int(args[6])
+
+        if len(args) >= 8:
+            model.num_constraints = int(args[7])
+
+        if len(args) >= 9:
+            model.num_justice = int(args[8])
+
+        if len(args) >= 10:
+            model.num_fairness = int(args[9])
+
+        return 0
+
+#--------------------------------------------------------------------------------------
+
+    def validateInput(self,numArgs,errStr,verbose):
+
+        args = (self.inFile.readline()).split()
+
+        err = 0
+        if len(args) < numArgs:
+            print(errStr)
+            err = -1
+
+        if verbose == True:
+            print(args)
+
+        return args,err
+
+#--------------------------------------------------------------------------------------
+
+    def readModel(self,model):
+
+        verbose = False
+        gateList = [0] * (model.maxvar + 1)
+        gateList[0] = ag.aiger_const(0,'Constant',0)
+
+        model.inputs = [0]*model.num_inputs
+        for i in range(0,model.num_inputs):
+            args,err = self.validateInput(1,'Invalid model definition - Input',verbose)
+            if err == 0:
+                model.inputs[i] = ag.aiger_input(int(args[0]),'Input',i)
+                gateList[int(int(args[0])/2)] = model.inputs[i]
+
+        model.latches = [0]*model.num_latches
+        for i in range(0,model.num_latches):
+            args,err = self.validateInput(2,'Invalid model definition - Latches',verbose)
+            if err == 0:
+                if len(args) == 2:
+                    args.append('0')
+                model.latches[i] = ag.aiger_latch(int(args[0]),int(args[1]),int(args[2]),i)
+                gateList[int(int(args[0])/2)] = model.latches[i]
+
+        model.outputs = [0]*model.num_outputs
+        for i in range(0,model.num_outputs):
+            args,err = self.validateInput(1,'Invalid model definition - Output',verbose)
+            if err == 0:
+                model.outputs[i] = ag.aiger_output(int(args[0]),'Output',i)
+
+        # Read but ignore any bad states
+        for i in range(0,model.num_bad):
+            args,err = self.validateInput(1,'Invalid model definition - Bad State',verbose)
+
+        # Read but ignore any constraints
+        for i in range(0,model.num_constraints):
+            args,err = self.validateInput(1,'Invalid model definition - Constraints',verbose)
+
+        # Read but ignore any justice properties
+        if model.num_justice > 0:
+            for j in range(0,model.num_justice):
+                tmp = (self.inFile.readline()).split()
+
+            for j in range(0,model.num_justice):
+                tmp1 = (self.inFile.readline()).split()
+                tmp2 = (self.inFile.readline()).split()
+
+        model.ands = [0]*model.num_ands
+        for i in range(0,model.num_ands):
+            args,err = self.validateInput(3,'Invalid model definition - Ands',verbose)
+            if err == 0:
+                model.ands[i] = ag.aiger_and(int(args[0]),int(args[1]),int(args[2]),i)
+                gateList[int(int(args[0])/2)] = model.ands[i]
+
+        # Connect all the gate inputs up
+        for i in range(0,model.num_inputs):
+            model.inputs[i].connect(gateList)
+
+        for i in range(0,model.num_latches):
+            model.latches[i].connect(gateList)
+
+        for i in range(0,model.num_outputs):
+            model.outputs[i].connect(gateList)
+
+        for i in range(0,model.num_ands):
+            model.ands[i].connect(gateList)
+
+        self.procModelNames(model)
+
+#--------------------------------------------------------------------------------------
+
+    def getStim(self):
+
+        args = (self.inFile.readline()).split()
+
+        return args
+
+#--------------------------------------------------------------------------------------
+
+@dataclass
+class Model:
+
+    stepNum         = 0
+    maxvar          = 0
+    num_inputs      = 0
+    num_latches     = 0
+    num_outputs     = 0
+    num_ands        = 0
+    num_bad         = 0
+    num_constraints = 0
+    num_justice     = 0
+    num_fairness    = 0
+
+    inputs  = [] # [0..num_inputs]
+    latches = [] # [0..num_latches]
+    outputs = [] # [0..num_outputs]
+
+    ands    = [] # [0..num_ands]
+
+    def _init_(self):
+        pass
+
+    def initModel(self):
+        self.stepNum = 0
+        self.transTable = tt.aigTransionTable(self.num_latches,self.num_inputs)
+
+    def validateInput(self,args):
+
+        err = 0
+        if len(args) == self.num_inputs:
+            current = [0] * self.num_inputs
+            for i in range (self.num_inputs):
+                if validInput.issuperset(args.rstrip()):
+                    current[i] = int(args[i])
+                else:
+                    print('invalid characters in input string')
+                    err = -1
+
+        else:
+            sys.exit('invalid input string length')
+
+        return current,err
+
+    def getCurVal(self,lit):
+        val = self.current[int(lit/2)]
+        if lit%2 != 0:
+            val = int(bin(val+1)[-1])
+
+        return val
+
+    def step(self,args):
+
+        for i in range(0,self.num_inputs):
+            self.inputs[i].prepStep()
+
+        for i in range(0,self.num_latches):
+            self.latches[i].prepStep()
+
+        for i in range(0,self.num_ands):
+            self.ands[i].prepStep()
+
+        stim,err = self.validateInput(args)
+
+        # Process the input stimuli
+        for i in range(0,self.num_inputs):
+            self.inputs[i].curVal = stim[i]
+
+        # Process the latches
+        curState  = ''
+        nextState = ''
+        for i in range(0,self.num_latches):
+            self.latches[i].step()
+            curState += ("{:1d}".format(self.latches[i].curVal))
+            nextState += ("{:1d}".format(self.latches[i].nextVal))
+        curState  = int(curState,2)
+        nextState = int(nextState,2)
+
+        # Process the and gates
+        for i in range(0,self.num_ands):
+            self.ands[i].step()
+
+         # Process the output gates
+        for i in range(0,self.num_outputs):
+            self.outputs[i].step()
+
+        self.stepNum += 1
+
+        self.transTable.updateTransTable(curState,nextState,int(args,2))
+
+        return self.stepNum
+
+    def printSelf(self):
+        print('Model')
+        print('-----')
+        print('maxvar      = ',self.maxvar)
+        print('num_inputs  = ',self.num_inputs)
+        print('num_latches = ',self.num_latches)
+        print('num_outputs = ',self.num_outputs)
+        print('num_ands    = ',self.num_ands)
+
+        for i in range(0,self.num_inputs):
+            self.inputs[i].printSelf()
+
+        for i in range(0,self.num_latches):
+            self.latches[i].printSelf()
+
+        for i in range(0,self.num_outputs):
+            self.outputs[i].printSelf()
+
+        for i in range(0,self.num_ands):
+            self.ands[i].printSelf()
+
+    def printState(self,pOptions,stepNum=0):
+
+        if pOptions[0] == True:
+            print("{:4d} ".format(stepNum),end='')
+
+        for i in range(0,self.num_latches):
+            print("{:1d}".format(self.latches[i].curVal),end='')
+        print(' ',end='')
+
+        for i in range(0,self.num_inputs):
+            print("{:1d}".format(self.inputs[i].curVal),end='')
+        print(' ',end='')
+
+        for i in range(0,self.num_outputs):
+            print("{:1d}".format(self.outputs[i].curVal),end='')
+        print(' ',end='')
+
+        for i in range(0,self.num_latches):
+            print("{:1d}".format(self.latches[i].nextVal),end='')
+        print(' ',end='')
+
+        if pOptions[1] == True:
+            for i in range(0,self.num_ands):
+                print("{:1d}".format(self.ands[i].curVal),end='')
+            print(' ',end='')
+
+        if pOptions[2] == True:
+            for i in range(0,self.num_latches):
+                print("{:02b}".format(self.latches[i].statesSeen),end='')
+
+            print(' ',end='')
+            for i in range(0,self.num_ands):
+                print("{:04b}".format(self.ands[i].statesSeen,''),end='')
+
+        print('')
+
+    def stateStr(self):
+
+        statusStr = ''
+
+        for i in range(0,self.num_latches):
+            statusStr += ("{:1d}".format(self.latches[i].curVal))
+        statusStr += ' '
+
+        for i in range(0,self.num_inputs):
+            statusStr += ("{:1d}".format(self.inputs[i].curVal))
+        statusStr += ' '
+
+        for i in range(0,self.num_outputs):
+            statusStr += ("{:1d}".format(self.outputs[i].curVal))
+        statusStr += ' '
+
+        for i in range(0,self.num_latches):
+            statusStr += ("{:1d}".format(self.latches[i].nextVal))
+        statusStr += ' '
+
+        for i in range(0,self.num_ands):
+            statusStr += ("{:1d}".format(self.ands[i].curVal))
+        statusStr += ' '
+
+        for i in range(0,self.num_latches):
+            statusStr += ("{:02b}".format(self.latches[i].statesSeen))
+
+        statusStr += ' '
+        for i in range(0,self.num_ands):
+            statusStr += ("{:04b}".format(self.ands[i].statesSeen,''))
+
+        return statusStr
+
+    def printTTable(self):
+        self.transTable.printTable()
+
+def main(m, s, v0 = False, v1 = False, p0 = False, p1 = False, p2 = False, sm = False):
+
+    verbose0 = False
+    verbose1 = False
+    printSM  = False
+    pOptions = [False] * 3
+
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('-m', type=str, default='', help='Model Filename')
+    # parser.add_argument('-s', type=str, default='', help='Stim Filename')
+    # parser.add_argument('-v0', action='store_true', help='Model Statistics')
+    # parser.add_argument('-v1', action='store_true', help='Model Output')
+    # parser.add_argument('-p0', action='store_true', help='Print Option: Include simulation step')
+    # parser.add_argument('-p1', action='store_true', help='Print Option: Include and gate states')
+    # parser.add_argument('-p2', action='store_true', help='Print Option: Include coverage')
+    # parser.add_argument('-sm', action='store_true', help='Print Inferred State Machine Transition Table')
+    #
+    # args = parser.parse_args()
+    #
+    # if args.m == '':
+    #     sys.exit('No model file provided')
+    # else:
+    #     modelFile = args.m
+    #
+    # if args.s == '':
+    #     sys.exit('No stim file provided')
+    # else:
+    #     stimFile = args.s
+    #
+    # if args.v0 == True:
+    #     verbose0 = True
+    #
+    # if args.v1 == True:
+    #     verbose1 = True
+    #
+    # if args.p0 == True:
+    #     pOptions[0] = True
+    #
+    # if args.p1 == True:
+    #     pOptions[1] = True
+    #
+    # if args.p2 == True:
+    #     pOptions[2] = True
+    #
+    # if args.sm == True:
+    #     printSM = True
+
+    modelFile = m
+    stimFile = s
+    verbose0 = v0
+    verbose1 = v1
+    pOptions[0] = p0
+    pOptions[1] = p1
+    pOptions[2] = p2
+    printSM = sm
+
+    model = Model()
+
+    reader = Reader()
+    reader.openFile(modelFile)
+    reader.readHeader(model)
+    reader.readModel(model)
+
+    if verbose0 == True:
+        model.printSelf()
+
+    model.initModel()
+
+    reader = Reader()
+    reader.openFile(stimFile)
+
+    done = False
+    res_str = ""
+
+    while done != True:
+        stim = reader.getStim()
+        if len(stim) > 0:
+            if stim[0] == '.':
+                done = True
+            else:
+                stepNum = model.step(stim[0])
+                res_str += model.stateStr()
+                res_str += "\n"
+                if verbose1 == True:
+                    model.printState(pOptions,stepNum)
+
+        else:
+            print('Stim file not properly terminated. Last line should only contain a period')
+            done = True
+
+    if printSM == True:
+        model.printTTable()
+
+    return res_str
+
+if __name__== "__main__":
+    main()
