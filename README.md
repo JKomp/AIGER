@@ -9,7 +9,7 @@ For the py file:<br />
 ## From Command Line
 ```
 python aigsim.py -h
-usage: aigsim.py [-h] [-m M] [-s S] [-v0] [-v1] [-p0] [-p1] [-p2] [-sm]
+usage: aigsim.py [-h] [-m M] [-s S] [-v0] [-v1] [-p0] [-p1] [-p2] [-sm] [-d]
 
 optional arguments:
   -h, --help  show this help message and exit
@@ -21,6 +21,7 @@ optional arguments:
   -p1         Print Option: Include and gate states
   -p2         Print Option: Include coverage
   -sm         Print Inferred State Machine Transition Table
+  -d          Print State Machine dot file
   ```
 A standard invocation:<br />
 
