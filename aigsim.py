@@ -1,4 +1,5 @@
 import sys
+import os
 import argparse
 
 from dataclasses import dataclass
@@ -362,15 +363,13 @@ class Model:
             statusStr += ("{:04b}".format(self.ands[i].statesSeen,''))
        
         return statusStr
-       
-    def printTTable(self):
-        self.transTable.printTable()
-        
+               
 def main():
 
     verbose0 = False
     verbose1 = False
     printSM  = False
+    printDot = False
     pOptions = [False] * 3
 
     parser = argparse.ArgumentParser()
@@ -382,6 +381,7 @@ def main():
     parser.add_argument('-p1', action='store_true', help='Print Option: Include and gate states')
     parser.add_argument('-p2', action='store_true', help='Print Option: Include coverage')
     parser.add_argument('-sm', action='store_true', help='Print Inferred State Machine Transition Table')
+    parser.add_argument('-d',  action='store_true', help='Print State Machine dot file')
     
     args = parser.parse_args()
     
@@ -413,6 +413,9 @@ def main():
     if args.sm == True:
         printSM = True
    
+    if args.d == True:
+        printDot = True
+        
     model = Model()
 
     reader = Reader()
@@ -445,7 +448,10 @@ def main():
             done = True
 
     if printSM == True:
-        model.printTTable()
+        model.transTable.printTable()
+        
+    if printDot == True:
+        model.transTable.printDotFile(os.path.splitext(modelFile)[0] + '.dot')
     
 if __name__== "__main__":
     main()
