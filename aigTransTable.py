@@ -55,6 +55,10 @@ class aigTransionTable:
             if not(visitCnt == 0 and trim == True) :
                 print(outStr,' {:4d}'.format(visitCnt))      
         
+    # For more on DOT file format see:
+    # https://www.graphviz.org/doc/info/attrs.html#k:arrowType
+    # https://www.graphviz.org/doc/info/lang.html
+    
     def printDotFile(self,outfile):
         
         f = open(outfile,"w")
