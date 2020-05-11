@@ -143,12 +143,13 @@ class Reader:
 
         # Read but ignore any justice properties 
         if model.num_justice > 0:
+            justiceSizes = [0]*model.num_justice
             for j in range(0,model.num_justice):
-                tmp = (self.inFile.readline()).split()
+                justiceSizes[j] = int((self.inFile.readline()).split()[0])
 
             for j in range(0,model.num_justice):
-                tmp1 = (self.inFile.readline()).split()
-                tmp2 = (self.inFile.readline()).split()
+                for k in range(0,justiceSizes[j]):
+                    tmp1 = (self.inFile.readline()).split()
 
         model.ands = [0]*model.num_ands
         for i in range(0,model.num_ands):
@@ -166,7 +167,7 @@ class Reader:
 
         for i in range(0,model.num_outputs):
             model.outputs[i].connect(gateList)
-
+		
         for i in range(0,model.num_ands):
             model.ands[i].connect(gateList)
             

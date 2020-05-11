@@ -16,7 +16,7 @@ class aiger_symbol:
     def __init__(self,lit,typeName,gID=0,gName=''):
         self.lit = lit
         self.type = typeName
-        if gName == '':
+        if self.gName == '':
             self.gName = typeName[0] + str(gID)
  
     def connect(self,gateList):
@@ -76,6 +76,7 @@ class aiger_latch(aiger_symbol):
         self.next = input
         self.reset = reset
         self.curVal = reset
+        self.nextVal = reset
         
     def connect(self,gateList):
         self.myInput = gateList[int(self.next/2)]
