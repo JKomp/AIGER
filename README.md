@@ -62,7 +62,7 @@ Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v0 -
 10 00 1 00  
 ```
 
-Adding print option `-p0` prints model state after the end of each step of execution with the addition of the and gate states:<br />
+Adding print option `-p0` prints model state after the end of each step of execution with the addition of the current simulation step:<br />
 - Column 1 = model step<br />
 - Column 2 = latches before step<br />
 - Column 3 = input stimuli<br />
