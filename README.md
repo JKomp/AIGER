@@ -193,3 +193,19 @@ Example:
                 if verbose1 == True:
                     model.printState(pOptions,stepNum)
 ```
+# Data Generation
+
+dataGen.py is a quick script to generate random simulation data. 
+
+Invocation:
+```
+python ./dataGen.py -h
+usage: dataGen.py [-h] [-i I] [-l L]
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -i I        Number of Inputs to Simulate
+  -l L        Length of simulation stream to create
+  ```
+  The output will be a file containing `L` lines of binary data where each line is `I` digits wide.
+  
