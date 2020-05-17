@@ -5,13 +5,14 @@ import math
 class aigTransionTable:
 
     tTable = []
+    bTable = []
     
     def __init__(self,numLatches,numInputs):
     
         self.tTable = np.full((pow(2,numLatches),pow(2,numInputs)),float('nan'))
-        pass
+        self.bTable = np.full(pow(2,numLatches),float('nan'))
     	
-    def updateTransTable(self,curState, nextState, stim):
+    def updateTransTable(self,curState, nextState, stim, bad):
         
         if np.isnan(self.tTable[curState,stim]) == True:
         	self.tTable[curState,stim] = nextState
@@ -19,6 +20,9 @@ class aigTransionTable:
         # Flag inconsistencies where the same transition goes to a different next state
         elif self.tTable[curState,stim] != nextState:
         	self.tTable[curState,stim] = -1
+        	
+        if bad > 0:
+            self.bTable[curState] = 1
 
     def printTable(self,trim=True):
 
@@ -72,7 +76,10 @@ class aigTransionTable:
                 if np.isnan(self.tTable[i,j]) != True:
                     visitCnt += 1
             if visitCnt > 0:
-                outstr = ('{:}[shape=circle,color=blue];\n'.format(i))
+                if self.bTable[i] > 0:
+                    outstr = ('{:}[shape=circle,color=red];\n'.format(i))
+                else:
+                    outstr = ('{:}[shape=circle,color=blue];\n'.format(i))
                 f.write(outstr)
 
         for i in range(self.tTable.shape[0]):

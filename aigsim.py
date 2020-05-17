@@ -133,9 +133,11 @@ class Reader:
             if err == 0:
                 model.outputs[i] = ag.aiger_output(int(args[0]),'Output',i)
         
-        # Read but ignore any bad states
+        model.bad = [0]*model.num_bad
         for i in range(0,model.num_bad):
             args,err = self.validateInput(1,'Invalid model definition - Bad State',verbose)
+            if err == 0:
+                model.bad[i] = ag.aiger_output(int(args[0]),'Bad',i)
             
         # Read but ignore any constraints 
         for i in range(0,model.num_constraints):
@@ -167,6 +169,9 @@ class Reader:
 
         for i in range(0,model.num_outputs):
             model.outputs[i].connect(gateList)
+
+        for i in range(0,model.num_bad):
+            model.bad[i].connect(gateList)
 		
         for i in range(0,model.num_ands):
             model.ands[i].connect(gateList)
@@ -200,7 +205,7 @@ class Model:
     inputs  = [] # [0..num_inputs]
     latches = [] # [0..num_latches]
     outputs = [] # [0..num_outputs]
-
+    bad     = [] # [0..num_bad]
     ands    = [] # [0..num_ands]
 
     def _init_(self):
@@ -269,9 +274,16 @@ class Model:
         for i in range(0,self.num_outputs):
             self.outputs[i].step()
 
+         # Process the bad states
+        bad = 0
+        for i in range(0,self.num_bad):
+            self.bad[i].step()
+            if self.bad[i].curVal > 0:
+                bad = 1
+
         self.stepNum += 1
         
-        self.transTable.updateTransTable(curState,nextState,int(args,2))
+        self.transTable.updateTransTable(curState,nextState,int(args,2),bad)
         
         return self.stepNum
         
@@ -282,6 +294,7 @@ class Model:
         print('num_inputs  = ',self.num_inputs)
         print('num_latches = ',self.num_latches)
         print('num_outputs = ',self.num_outputs)
+        print('num_bad     = ',self.num_bad)
         print('num_ands    = ',self.num_ands)
         
         for i in range(0,self.num_inputs):
@@ -293,6 +306,9 @@ class Model:
         for i in range(0,self.num_outputs):
             self.outputs[i].printSelf()
             
+        for i in range(0,self.num_bad):
+            self.bad[i].printSelf()
+                        
         for i in range(0,self.num_ands):
             self.ands[i].printSelf()
         
@@ -311,6 +327,10 @@ class Model:
             
         for i in range(0,self.num_outputs):
             print("{:1d}".format(self.outputs[i].curVal),end='')
+        print(' ',end='')
+            
+        for i in range(0,self.num_bad):
+            print("{:1d}".format(self.bad[i].curVal),end='')
         print(' ',end='')
 
         for i in range(0,self.num_latches):
@@ -346,6 +366,10 @@ class Model:
             
         for i in range(0,self.num_outputs):
             statusStr += ("{:1d}".format(self.outputs[i].curVal))
+        statusStr += ' '
+            
+        for i in range(0,self.num_bad):
+            statusStr += ("{:1d}".format(self.bad[i].curVal))
         statusStr += ' '
 
         for i in range(0,self.num_latches):
