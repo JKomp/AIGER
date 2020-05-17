@@ -150,6 +150,7 @@ The following model files are provided in the examples directory:<br />
 | --- | --- | --- |
 | `aigTestSMV2.aag.txt` | stim1.txt | A simple toggling latch with enable |
 | `counter.aag` | stimCounter.txt | An AIGER benchmark file for a complex counter |
+| `runnerGame.aag` | runnerStim1_7.txt | A simple 2 player, concurrent game of a runner and blocker |
 | `random_n_19_1_2_16_14_2_abc.aag` | stim3.txt | An AIGER competition file with over 1M and gates |
 
 **Note:** `random_n_19_1_2_16_14_2_abc.aag` is an extremely large model with over 1M gates. Caution recommended on verbose print options used.
