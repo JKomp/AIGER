@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import math
+import re
 
 class aiger_symbol:
 
@@ -24,6 +25,9 @@ class aiger_symbol:
         if self.lit % 2 != 0:
             self.myInputNeg = True
           
+    def setModName(self,mName):
+        self.modName = mName
+        
     def prepStep(self):
         self.oldVal = self.curVal
         self.curVal = float('nan')
@@ -38,7 +42,7 @@ class aiger_symbol:
         else:
            conStr += ' '
            
-        print('aiger_symbol - Type: {:6} lit: {:3}                      input: {:4}      name:{:4} {:20}'.format(self.type,self.lit,conStr,self.gName,self.modName))                                
+        print('Type: {:6} lit: {:3}                      input: {:4}      name:{:4} {:20}'.format(self.type,self.lit,conStr,self.gName,self.modName))                                
 
 #--------------------------------------------------------------------------------------
 
@@ -51,7 +55,13 @@ class aiger_const(aiger_symbol):
 
 class aiger_input(aiger_symbol):
 
-    pass
+    controlled = False
+    
+    def setModName(self,mName):
+        super().setModName(mName)
+        
+        if re.search('control', mName, re.IGNORECASE) and not re.search('uncontrol', mName, re.IGNORECASE):
+            self.controlled = True
 
 #--------------------------------------------------------------------------------------
 
@@ -106,7 +116,7 @@ class aiger_latch(aiger_symbol):
         else:
            conStr += ' '
            
-        print('aiger_symbol - Type: {:6} lit: {:3} next: {:3} reset: {:3} input: {:4}      name:{:4} {:20}'.format(self.type,self.lit,self.next,self.reset,conStr,self.gName,self.modName))                                
+        print('Type: {:6} lit: {:3} next: {:3} reset: {:3} input: {:4}      name:{:4} {:20}'.format(self.type,self.lit,self.next,self.reset,conStr,self.gName,self.modName))                                
 
 #--------------------------------------------------------------------------------------
 
@@ -167,5 +177,5 @@ class aiger_and(aiger_symbol):
         
         conStr += ' '*(9-len(conStr))
 
-        print('aiger_symbol - Type: {:6} lit: {:3} rhs0: {:3}  rhs1: {:3} input: {:9} name:{:10}'.format(self.type,self.lit,self.rhs0,self.rhs1,conStr,self.gName))
+        print('Type: {:6} lit: {:3} rhs0: {:3}  rhs1: {:3} input: {:9} name:{:10}'.format(self.type,self.lit,self.rhs0,self.rhs1,conStr,self.gName))
 

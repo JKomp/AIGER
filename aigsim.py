@@ -40,16 +40,16 @@ class Reader:
     def procModelNames(self,model):
     
         for line in self.inFile:
-            gateNames = line.split()
+            gateNames = line.split(' ',1)
             if gateNames[0][0] != 'c':
                 if gateNames[0][0] == 'i':
-                    model.inputs[int(gateNames[0][1:])].modName = gateNames[1]
+                    model.inputs[int(gateNames[0][1:])].setModName(gateNames[1].rstrip())
                     
                 elif gateNames[0][0] == 'l':
-                    model.latches[int(gateNames[0][1:])].modName = gateNames[1]
+                    model.latches[int(gateNames[0][1:])].setModName(gateNames[1].rstrip())
                 
                 elif gateNames[0][0] == 'o':
-                    model.outputs[int(gateNames[0][1:])].modName = gateNames[1]
+                    model.outputs[int(gateNames[0][1:])].setModName(gateNames[1].rstrip())
 
             else:
                 break
@@ -178,6 +178,11 @@ class Reader:
             
         self.procModelNames(model)
         
+        #Get a count of the controllable InputStates
+        for i in range(0,model.num_inputs):
+            if model.inputs[i].controlled == True:
+                model.num_inputsCtl += 1
+                
 #--------------------------------------------------------------------------------------
               
     def getStim(self):
@@ -194,6 +199,7 @@ class Model:
     stepNum         = 0
     maxvar          = 0
     num_inputs      = 0
+    num_inputsCtl   = 0
     num_latches     = 0
     num_outputs     = 0
     num_ands        = 0
@@ -290,12 +296,13 @@ class Model:
     def printSelf(self):
         print('Model')
         print('-----')
-        print('maxvar      = ',self.maxvar)
-        print('num_inputs  = ',self.num_inputs)
-        print('num_latches = ',self.num_latches)
-        print('num_outputs = ',self.num_outputs)
-        print('num_bad     = ',self.num_bad)
-        print('num_ands    = ',self.num_ands)
+        print('maxvar       = ',self.maxvar)
+        print('num_inputs   = ',self.num_inputs)
+        print('  controlled = ',self.num_inputsCtl)
+        print('num_latches  = ',self.num_latches)
+        print('num_outputs  = ',self.num_outputs)
+        print('num_bad      = ',self.num_bad)
+        print('num_ands     = ',self.num_ands)
         
         for i in range(0,self.num_inputs):
             self.inputs[i].printSelf()
@@ -388,6 +395,19 @@ class Model:
             statusStr += ("{:04b}".format(self.ands[i].statesSeen,''))
        
         return statusStr
+
+    def getStats(self):
+        
+        stats = {}
+        stats['maxvar'] = self.maxvar
+        stats['inputs'] = self.num_inputs
+        stats['controlled'] = self.num_inputsCtl
+        stats['latches'] = self.num_latches
+        stats['outputs'] = self.num_outputs
+        stats['bad']     = self.num_bad
+        stats['ands']    = self.num_ands
+        
+        return stats
                
 def main():
 
