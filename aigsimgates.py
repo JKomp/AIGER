@@ -24,6 +24,9 @@ class aiger_symbol:
         self.myInput = gateList[int(self.lit/2)]
         if self.lit % 2 != 0:
             self.myInputNeg = True
+            
+    def resetGate(self):
+        pass
           
     def setModName(self,mName):
         self.modName = mName
@@ -93,6 +96,10 @@ class aiger_latch(aiger_symbol):
         if self.next % 2 != 0:
             self.myInputNeg = True
 
+    def resetGate(self):
+        self.curVal = self.reset
+        self.nextVal = self.reset
+        
     def prepStep(self):
         self.oldVal = self.curVal
         self.curVal = float('nan')

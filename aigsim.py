@@ -139,9 +139,11 @@ class Reader:
             if err == 0:
                 model.bad[i] = ag.aiger_output(int(args[0]),'Bad',i)
             
-        # Read but ignore any constraints 
+        model.constraint = [0]*model.num_constraints
         for i in range(0,model.num_constraints):
             args,err = self.validateInput(1,'Invalid model definition - Constraints',verbose)
+            if err == 0:
+                model.constraint[i] = ag.aiger_output(int(args[0]),'Const',i)
 
         # Read but ignore any justice properties 
         if model.num_justice > 0:
@@ -172,6 +174,9 @@ class Reader:
 
         for i in range(0,model.num_bad):
             model.bad[i].connect(gateList)
+
+        for i in range(0,model.num_constraints):
+            model.constraint[i].connect(gateList)
 		
         for i in range(0,model.num_ands):
             model.ands[i].connect(gateList)
@@ -208,11 +213,12 @@ class Model:
     num_justice     = 0
     num_fairness    = 0
 
-    inputs  = [] # [0..num_inputs]
-    latches = [] # [0..num_latches]
-    outputs = [] # [0..num_outputs]
-    bad     = [] # [0..num_bad]
-    ands    = [] # [0..num_ands]
+    inputs     = [] # [0..num_inputs]
+    latches    = [] # [0..num_latches]
+    outputs    = [] # [0..num_outputs]
+    bad        = [] # [0..num_bad]
+    constraint = [] # [0..num_constraints]
+    ands       = [] # [0..num_ands]
 
     def _init_(self):
         pass
@@ -220,6 +226,8 @@ class Model:
     def initModel(self):
         self.stepNum = 0
         self.transTable = tt.aigTransionTable(self.num_latches,self.num_inputs)
+        for i in range(0,self.num_latches):
+            self.latches[i].resetGate()
                     
     def validateInput(self,args):
         
@@ -234,7 +242,7 @@ class Model:
                     err = -1
                     
         else:
-            sys.exit('invalid input string length')
+            sys.exit('invalid input string length. Expected {:d} Got {:d} {:s}'.format(self.num_inputs,len(args),args))
 
         return current,err
         
@@ -287,6 +295,13 @@ class Model:
             if self.bad[i].curVal > 0:
                 bad = 1
 
+         # Process the constrained states (negative logic -> 1 = constraint holds)
+        constraint = 0
+        for i in range(0,self.num_constraints):
+            self.constraint[i].step()
+            if self.constraint[i].curVal == 0:
+                constraint = 1
+
         self.stepNum += 1
         
         self.transTable.updateTransTable(curState,nextState,int(args,2),bad)
@@ -296,13 +311,14 @@ class Model:
     def printSelf(self):
         print('Model')
         print('-----')
-        print('maxvar       = ',self.maxvar)
-        print('num_inputs   = ',self.num_inputs)
-        print('  controlled = ',self.num_inputsCtl)
-        print('num_latches  = ',self.num_latches)
-        print('num_outputs  = ',self.num_outputs)
-        print('num_bad      = ',self.num_bad)
-        print('num_ands     = ',self.num_ands)
+        print('maxvar          = ',self.maxvar)
+        print('num_inputs      = ',self.num_inputs)
+        print('  controlled    = ',self.num_inputsCtl)
+        print('num_latches     = ',self.num_latches)
+        print('num_outputs     = ',self.num_outputs)
+        print('num_bad         = ',self.num_bad)
+        print('num_constraints = ',self.num_constraints)
+        print('num_ands        = ',self.num_ands)
         
         for i in range(0,self.num_inputs):
             self.inputs[i].printSelf()
@@ -315,6 +331,9 @@ class Model:
             
         for i in range(0,self.num_bad):
             self.bad[i].printSelf()
+            
+        for i in range(0,self.num_constraints):
+            self.constraint[i].printSelf()
                         
         for i in range(0,self.num_ands):
             self.ands[i].printSelf()
@@ -338,6 +357,10 @@ class Model:
             
         for i in range(0,self.num_bad):
             print("{:1d}".format(self.bad[i].curVal),end='')
+        print(' ',end='')
+            
+        for i in range(0,self.num_constraints):
+            print("{:1d}".format(self.constraint[i].curVal),end='')
         print(' ',end='')
 
         for i in range(0,self.num_latches):
@@ -378,6 +401,10 @@ class Model:
         for i in range(0,self.num_bad):
             statusStr += ("{:1d}".format(self.bad[i].curVal))
         statusStr += ' '
+            
+        for i in range(0,self.num_constraints):
+            statusStr += ("{:1d}".format(self.constraint[i].curVal))
+        statusStr += ' '
 
         for i in range(0,self.num_latches):
             statusStr += ("{:1d}".format(self.latches[i].nextVal))
@@ -396,6 +423,57 @@ class Model:
        
         return statusStr
 
+    def getState(self):
+    
+        states = {}
+        
+        statusStr = ''
+        for i in range(0,self.num_latches):
+            statusStr += ("{:1d}".format(self.latches[i].curVal))
+        states['latches_now'] = statusStr
+
+        statusStr = ''
+        for i in range(0,self.num_inputs):
+            statusStr += ("{:1d}".format(self.inputs[i].curVal))
+        states['inputs'] = statusStr
+            
+        statusStr = ''
+        for i in range(0,self.num_outputs):
+            statusStr += ("{:1d}".format(self.outputs[i].curVal))
+        states['outputs'] = statusStr
+            
+        statusStr = ''
+        for i in range(0,self.num_bad):
+            statusStr += ("{:1d}".format(self.bad[i].curVal))
+        states['bad'] = statusStr
+            
+        statusStr = ''
+        for i in range(0,self.num_constraints):
+            statusStr += ("{:1d}".format(self.constraint[i].curVal))
+        states['constraint'] = statusStr
+
+        statusStr = ''
+        for i in range(0,self.num_latches):
+            statusStr += ("{:1d}".format(self.latches[i].nextVal))
+        states['latches_next'] = statusStr
+            
+        statusStr = ''
+        for i in range(0,self.num_ands):
+            statusStr += ("{:1d}".format(self.ands[i].curVal))            
+        states['ands'] = statusStr
+            
+        statusStr = ''
+        for i in range(0,self.num_latches):
+            statusStr += ("{:02b}".format(self.latches[i].statesSeen))
+        states['latches_seen'] = statusStr
+            
+        statusStr = ''
+        for i in range(0,self.num_ands):
+            statusStr += ("{:04b}".format(self.ands[i].statesSeen,''))
+        states['states_seen'] = statusStr
+       
+        return states
+
     def getStats(self):
         
         stats = {}
@@ -405,6 +483,7 @@ class Model:
         stats['latches'] = self.num_latches
         stats['outputs'] = self.num_outputs
         stats['bad']     = self.num_bad
+        stats['constraing'] = self.num_constraints
         stats['ands']    = self.num_ands
         
         return stats
