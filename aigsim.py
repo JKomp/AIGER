@@ -252,7 +252,7 @@ class Model:
             val = int(bin(val+1)[-1])
         
         return val
-    
+            
     def step(self,args):
         
         for i in range(0,self.num_inputs):
@@ -340,86 +340,43 @@ class Model:
         
     def printState(self,pOptions,stepNum=0):
     
+        status = self.getState()
+        
+        outStr = self.stateStr(pOptions[1],pOptions[2])
+        
         if pOptions[0] == True:
-            print("{:4d} ".format(stepNum),end='')
-            
-        for i in range(0,self.num_latches):
-            print("{:1d}".format(self.latches[i].curVal),end='')
-        print(' ',end='')
+            outStr = "{:4d} ".format(stepNum) + outStr
+                        
+        print(outStr)
 
-        for i in range(0,self.num_inputs):
-            print("{:1d}".format(self.inputs[i].curVal),end='')
-        print(' ',end='')
-            
-        for i in range(0,self.num_outputs):
-            print("{:1d}".format(self.outputs[i].curVal),end='')
-        print(' ',end='')
-            
-        for i in range(0,self.num_bad):
-            print("{:1d}".format(self.bad[i].curVal),end='')
-        print(' ',end='')
-            
-        for i in range(0,self.num_constraints):
-            print("{:1d}".format(self.constraint[i].curVal),end='')
-        print(' ',end='')
-
-        for i in range(0,self.num_latches):
-            print("{:1d}".format(self.latches[i].nextVal),end='')
-        print(' ',end='')
-            
-        if pOptions[1] == True:
-            for i in range(0,self.num_ands):
-                print("{:1d}".format(self.ands[i].curVal),end='')            
-            print(' ',end='')
-            
-        if pOptions[2] == True:
-            for i in range(0,self.num_latches):
-                print("{:02b}".format(self.latches[i].statesSeen),end='')
-            
-            print(' ',end='')
-            for i in range(0,self.num_ands):
-                print("{:04b}".format(self.ands[i].statesSeen,''),end='')
-            
-        print('')
-
-    def stateStr(self):
+    def stateStr(self,pAStates = True,pHistory = True):
     
+        status = self.getState()
+
         statusStr = ''
         
-        for i in range(0,self.num_latches):
-            statusStr += ("{:1d}".format(self.latches[i].curVal))
+        statusStr += status["latches_now"]
         statusStr += ' '
-
-        for i in range(0,self.num_inputs):
-            statusStr += ("{:1d}".format(self.inputs[i].curVal))
+        statusStr += status["inputs"]
         statusStr += ' '
+        statusStr += status["outputs"]
+        statusStr += ' '
+        statusStr += status["bad"]
+        statusStr += ' '
+        statusStr += status["constraint"]
+        statusStr += ' '
+        statusStr += status["latches_next"]
+        statusStr += ' '
+        
+        if pAStates == True:
+            statusStr += status["ands"]
+            statusStr += ' '
             
-        for i in range(0,self.num_outputs):
-            statusStr += ("{:1d}".format(self.outputs[i].curVal))
-        statusStr += ' '
+        if pHistory == True:
+            statusStr += status["latches_seen"]
+            statusStr += ' '
             
-        for i in range(0,self.num_bad):
-            statusStr += ("{:1d}".format(self.bad[i].curVal))
-        statusStr += ' '
-            
-        for i in range(0,self.num_constraints):
-            statusStr += ("{:1d}".format(self.constraint[i].curVal))
-        statusStr += ' '
-
-        for i in range(0,self.num_latches):
-            statusStr += ("{:1d}".format(self.latches[i].nextVal))
-        statusStr += ' '
-            
-        for i in range(0,self.num_ands):
-            statusStr += ("{:1d}".format(self.ands[i].curVal))            
-        statusStr += ' '
-            
-        for i in range(0,self.num_latches):
-            statusStr += ("{:02b}".format(self.latches[i].statesSeen))
-            
-        statusStr += ' '
-        for i in range(0,self.num_ands):
-            statusStr += ("{:04b}".format(self.ands[i].statesSeen,''))
+            statusStr += status["states_seen"]
        
         return statusStr
 
