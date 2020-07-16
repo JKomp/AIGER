@@ -49,18 +49,21 @@ aiger_symbol - Type: And    lit:  14 rhs0:  11  rhs1:  12 input: L1* L0    name:
 Verbose option `-v1` with no print options prints model state at the end of each step of execution where<br />
 - Column 1 = latches before step<br />
 - Column 2 = input stimuli<br />
-- Column 3 = output states<br />
+- Column 3 = output states             (not printed if none designated in model)<br />
+- Column 4 = bad condition status (not printed if none designated in model)<br />
+- Column 5 = constraint status       (not printed if none designated in model)<br />
 - Column 4 = latches after step<br />
 
 Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v1`
 ```
-00 11 0 10 
-10 11 1 10 
-10 10 1 00 
-00 10 0 00 
-00 11 0 10 
-10 00 1 00  
+00 11 0   10 
+10 11 1   10 
+10 10 1   00 
+00 10 0   00 
+00 11 0   10 
+10 00 1   00  
 ```
+Note: model aigTestSMV2.aag.txt has no bad conditions or constraints. They are skipped but blank columns are printed (the extra spaces in the example above before the latch final states)
 
 Adding print option `-p0` prints model state after the end of each step of execution with the addition of the current simulation step:<br />
 - Column 1 = model step<br />
