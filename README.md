@@ -52,7 +52,7 @@ Verbose option `-v1` with no print options prints model state at the end of each
 - Column 3 = output states<br />
 - Column 4 = latches after step<br />
 
-Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v0 -v1`
+Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v1`
 ```
 00 11 0 10 
 10 11 1 10 
@@ -69,7 +69,7 @@ Adding print option `-p0` prints model state after the end of each step of execu
 - Column 4 = output states<br />
 - Column 5 = latches after step<br />
 
-Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v0 -p0`
+Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v1 -p0`
 ```
    1 00 11 0 10 
    2 10 11 1 10 
@@ -86,7 +86,7 @@ Adding print option `-p1` prints model state after the end of each step of execu
 - Column 5 = latches after step<br />
 - Column 6 = and gate states<br />
 
-Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v0 -p0 -p1`
+Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v1 -p0 -p1`
 ```
    1 00 11 0 10 100 
    2 10 11 1 10 101 
@@ -114,7 +114,7 @@ The output columns are defined as:
 
 **Note:** It is not recommended to use this option with models containing large numbers of and gates.
 
-Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v0 -p0 -p1 -p2`
+Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v1 -p0 -p1 -p2`
 ```
    1 00 11 0 10 100 0101 100000100010
    2 10 11 1 10 101 1101 100000101010
