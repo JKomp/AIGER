@@ -22,6 +22,7 @@ optional arguments:
   -p2         Print Option: Include coverage
   -sm         Print Inferred State Machine Transition Table
   -d          Print State Machine dot file
+  -g          Generate dot graph of original network (similar to aigtodot
   ```
 A standard invocation:<br />
 
