@@ -177,7 +177,7 @@ class Reader:
 
         for i in range(0,model.num_constraints):
             model.constraint[i].connect(gateList)
-		
+        
         for i in range(0,model.num_ands):
             model.ands[i].connect(gateList)
             
@@ -444,13 +444,65 @@ class Model:
         stats['ands']    = self.num_ands
         
         return stats
-               
+        
+    def writeGraph(self,outfile):
+        
+        f = open(outfile,"w")
+
+        f.write('digraph "{}" {{\n'.format(outfile))
+
+        for input in self.inputs:
+            f.write(f'"{input.lit}" [shape=box];\n')    
+            if input.modName != '':
+                f.write(f'"{input.modName}" [shape=triangle,color=blue];\n')   
+                f.write(f'"{input.lit}" -> "{input.modName}" [arrowhead=none];\n') 
+
+        for latch in self.latches:
+            f.write(f'"{latch.lit}" [shape=box,color=magenta]\n')    
+            if latch.modName != '':
+                lName = latch.modName
+            else:
+                lName = f'L{latch.gID}'
+            f.write(f'"{lName}" [shape=diamond,color=magenta];\n')   
+            f.write(f'"{lName}" -> "{latch.lit}" [style=dashed,color=magenta,arrowhead=none];\n')
+            if (latch.next % 2) == 0:
+                f.write(f'"{lName}" -> "{latch.next}" [arrowhead=none];\n')
+            else:   
+                f.write(f'"{lName}" -> "{latch.next -1}" [arrowhead=dot];\n')
+
+        for output in self.outputs:
+            if output.modName != '':
+                oName = output.modName
+            else:
+                oName = f'O{output.gID}'
+            f.write(f'"{oName}" [shape=triangle,color=blue]\n')
+            if (output.lit % 2) == 0:        
+                f.write(f'"{oName}" -> "{output.lit}" [arrowhead=none];\n')
+            else:
+                f.write(f'"{oName}" -> "{output.lit -1}" [arrowhead=dot];\n')
+
+        for gate in self.ands:
+            if (gate.rhs0 % 2) == 0:
+                f.write(f'"{gate.lit}" -> {gate.rhs0} [arrowhead=none];\n')     
+            else:   
+                f.write(f'"{gate.lit}" -> {gate.rhs0 -1} [arrowhead=dot];\n')   
+                  
+            if (gate.rhs1 % 2) == 0:
+                f.write(f'"{gate.lit}" -> {gate.rhs1} [arrowhead=none];\n')     
+            else:   
+                f.write(f'"{gate.lit}" -> {gate.rhs1 -1} [arrowhead=dot];\n')     
+        
+        f.write('}\n')
+        f.close()      
+                 
 def main():
 
     verbose0 = False
     verbose1 = False
     printSM  = False
     printDot = False
+    graphDot = False
+    skipStim = False
     pOptions = [False] * 3
 
     parser = argparse.ArgumentParser()
@@ -463,6 +515,7 @@ def main():
     parser.add_argument('-p2', action='store_true', help='Print Option: Include coverage')
     parser.add_argument('-sm', action='store_true', help='Print Inferred State Machine Transition Table')
     parser.add_argument('-d',  action='store_true', help='Print State Machine dot file')
+    parser.add_argument('-g',  action='store_true', help='Print AIGER Graph dot file')
     
     args = parser.parse_args()
     
@@ -472,7 +525,8 @@ def main():
         modelFile = args.m
     
     if args.s == '':
-        sys.exit('No stim file provided')
+        print('No stim file provided')
+        skipStim = True
     else:
         stimFile = args.s
 
@@ -497,6 +551,9 @@ def main():
     if args.d == True:
         printDot = True
         
+    if args.g == True:
+        graphDot = True
+        
     model = Model()
 
     reader = Reader()
@@ -509,30 +566,34 @@ def main():
         
     model.initModel()
 
-    reader = Reader()
-    reader.openFile(stimFile)
+    if skipStim != True:
+        reader = Reader()
+        reader.openFile(stimFile)
 
-    done = False
+        done = False
     
-    while done != True:
-        stim = reader.getStim()
-        if len(stim) > 0:
-            if stim[0] == '.':
-                done = True
-            else:
-                stepNum = model.step(stim[0])
-                if verbose1 == True:
-                    model.printState(pOptions,stepNum)
+        while done != True:
+            stim = reader.getStim()
+            if len(stim) > 0:
+                if stim[0] == '.':
+                    done = True
+                else:
+                    stepNum = model.step(stim[0])
+                    if verbose1 == True:
+                        model.printState(pOptions,stepNum)
             
-        else:
-            print('Stim file not properly terminated. Last line should only contain a period')
-            done = True
+            else:
+                print('Stim file not properly terminated. Last line should only contain a period')
+                done = True
 
     if printSM == True:
         model.transTable.printTable()
         
     if printDot == True:
         model.transTable.printDotFile(os.path.splitext(modelFile)[0] + '.dot')
+        
+    if graphDot == True:
+        model.writeGraph(os.path.splitext(modelFile)[0] + 'Graph.dot')
     
 if __name__== "__main__":
     main()
