@@ -2,7 +2,9 @@
 Python version of tools to work with AIG formatted files<br />
 
 
-There are two versions of the code here. One is a standard py file. The other is a Jupyter notebook. The model and stim files for the jupyter notebook are hardcoded in the first cell.<br />
+There are two versions of the code here. One is a standard py file. The other is a Jupyter notebook. The notebook version adds the capability to view the original graph (like aigtodot)  
+
+The model and stim files for the jupyter notebook are hardcoded in the first cell.<br />
 
 For the py file:<br />
 
@@ -216,4 +218,10 @@ optional arguments:
   -l L        Length of simulation stream to create
   ```
   The output will be a file containing `L` lines of binary data where each line is `I` digits wide.
+  
+# Known Differences from AIGER
+
+* Ignores Justifications
+* Does not handle latch reset values outside {0,1}
+* Does not print node 0 as an orange box like aigtodo
   
