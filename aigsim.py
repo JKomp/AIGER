@@ -452,45 +452,22 @@ class Model:
         f.write('digraph "{}" {{\n'.format(outfile))
 
         for input in self.inputs:
-            f.write(f'"{input.lit}" [shape=box];\n')    
-            if input.modName != '':
-                f.write(f'"{input.modName}" [shape=triangle,color=blue];\n')   
-                f.write(f'"{input.lit}" -> "{input.modName}" [arrowhead=none];\n') 
+            f.write(input.dot('blue'))
 
         for latch in self.latches:
-            f.write(f'"{latch.lit}" [shape=box,color=magenta]\n')    
-            if latch.modName != '':
-                lName = latch.modName
-            else:
-                lName = f'L{latch.gID}'
-            f.write(f'"{lName}" [shape=diamond,color=magenta];\n')   
-            f.write(f'"{lName}" -> "{latch.lit}" [style=dashed,color=magenta,arrowhead=none];\n')
-            if (latch.next % 2) == 0:
-                f.write(f'"{lName}" -> "{latch.next}" [arrowhead=none];\n')
-            else:   
-                f.write(f'"{lName}" -> "{latch.next -1}" [arrowhead=dot];\n')
+            f.write(latch.dot('magenta'))
 
         for output in self.outputs:
-            if output.modName != '':
-                oName = output.modName
-            else:
-                oName = f'O{output.gID}'
-            f.write(f'"{oName}" [shape=triangle,color=blue]\n')
-            if (output.lit % 2) == 0:        
-                f.write(f'"{oName}" -> "{output.lit}" [arrowhead=none];\n')
-            else:
-                f.write(f'"{oName}" -> "{output.lit -1}" [arrowhead=dot];\n')
+            f.write(output.dot('blue'))
 
         for gate in self.ands:
-            if (gate.rhs0 % 2) == 0:
-                f.write(f'"{gate.lit}" -> {gate.rhs0} [arrowhead=none];\n')     
-            else:   
-                f.write(f'"{gate.lit}" -> {gate.rhs0 -1} [arrowhead=dot];\n')   
-                  
-            if (gate.rhs1 % 2) == 0:
-                f.write(f'"{gate.lit}" -> {gate.rhs1} [arrowhead=none];\n')     
-            else:   
-                f.write(f'"{gate.lit}" -> {gate.rhs1 -1} [arrowhead=dot];\n')     
+            f.write(gate.dot('black'))
+
+        for gate in self.bad:
+            f.write(gate.dot('red'))
+
+        for gate in self.constraint:
+            f.write(gate.dot('green'))
         
         f.write('}\n')
         f.close()      

@@ -38,6 +38,9 @@ class aiger_symbol:
     def step(self):
         return(self.curVal)
         
+    def dot(self,color):
+        pass
+        
     def printSelf(self):
         conStr = self.myInput.gName
         if self.myInputNeg == True:
@@ -66,14 +69,37 @@ class aiger_input(aiger_symbol):
         if re.search('control', mName, re.IGNORECASE) and not re.search('uncontrol', mName, re.IGNORECASE):
             self.controlled = True
 
+    def dot(self,color):
+
+        dotStr = f'"{self.lit}" [shape=box];\n'   
+        if self.modName != '':
+            dotStr = dotStr + f'"{self.modName}" [shape=triangle,color={color}];\n'
+            dotStr = dotStr + f'"{self.lit}" -> "{self.modName}" [arrowhead=none];\n'
+            
+        return dotStr 
+    
 #--------------------------------------------------------------------------------------
 
 class aiger_output(aiger_symbol):
-
           
     def step(self):
         self.curVal = self.myInput.step()
         return(self.curVal)
+
+    def dot(self,color):
+
+        if self.modName != '':
+            oName = self.modName
+        else:
+            oName = f'O{self.gID}'
+        dotStr = f'"{oName}" [shape=triangle,color={color}]\n'
+        
+        if self.myInputNeg != True:
+            dotStr = dotStr + f'"{oName}" -> "{self.lit}" [arrowhead=none];\n'
+        else:
+            dotStr = dotStr + f'"{oName}" -> "{self.lit -1}" [arrowhead=dot];\n'
+            
+        return dotStr 
 
 #--------------------------------------------------------------------------------------
 # - Note this code does not support reset reset values outside {0,1}.
@@ -116,6 +142,24 @@ class aiger_latch(aiger_symbol):
             
         return self.curVal
         
+    def dot(self,color):
+        dotStr = f'"{self.lit}" [shape=box,color={color}]\n'  
+        
+        if self.modName != '':
+            lName = self.modName
+        else:
+            lName = f'L{self.gID}'
+            
+        dotStr = dotStr + f'"{lName}" [shape=diamond,color={color}];\n'   
+        dotStr = dotStr + f'"{lName}" -> "{self.lit}" [style=dashed,color={color},arrowhead=none];\n'
+        
+        if self.myInputNeg != True:
+            dotStr = dotStr + f'"{lName}" -> "{self.next}" [arrowhead=none];\n'
+        else:   
+            dotStr = dotStr + f'"{lName}" -> "{self.next -1}" [arrowhead=dot];\n'
+            
+        return dotStr
+    
     def printSelf(self):
         conStr = self.myInput.gName
         if self.myInputNeg == True:
@@ -170,6 +214,20 @@ class aiger_and(aiger_symbol):
                 self.statesSeen = self.statesSeen | 0x8
           
         return self.curVal
+
+    def dot(self,color):
+
+        if self.in0Neg == False:
+            dotStr = f'"{self.lit}" -> {self.rhs0} [arrowhead=none];\n'     
+        else:   
+            dotStr = f'"{self.lit}" -> {self.rhs0 -1} [arrowhead=dot];\n' 
+                  
+        if self.in1Neg == False:
+            dotStr = dotStr + f'"{self.lit}" -> {self.rhs1} [arrowhead=none];\n'   
+        else:   
+            dotStr = dotStr + f'"{self.lit}" -> {self.rhs1 -1} [arrowhead=dot];\n'   
+
+        return dotStr
 
     def printSelf(self):        
         conStr = self.in0.gName
