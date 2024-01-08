@@ -224,4 +224,5 @@ optional arguments:
 * Ignores Justifications
 * Does not handle latch reset values outside {0,1}
 * Does not print node 0 as an orange box like aigtodot
+* Does not renumber gates/nodes when building graph - retains original numbering
   
