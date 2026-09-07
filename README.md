@@ -61,7 +61,7 @@ Verbose option `-v1` with no print options prints model state at the end of each
 - Column 5 = constraint status       (not printed if none designated in model)<br />
 - Column 6 = latches after step<br />
 
-Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v1` (Columns 4 and 5 are not displayed)
+Example output from: `python aigsim.py -m aigTestSMV2.aag.txt -s stim1.txt -v1` (Columns 4 and 5 are not displayed in this example)
 ```
 00 11 0   10 
 10 11 1   10 
